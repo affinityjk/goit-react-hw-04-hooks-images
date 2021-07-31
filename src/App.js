@@ -24,40 +24,12 @@ export function App() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!searchQuery) return;
-
-    setImages([]);
-    fetchImagesByQuery(searchQuery, page);
-    setStatus(Status.PENDING);
-
-    if (page > 1) {
-      window.scrollTo({
-        top: document.documentElement.scrollHeight,
-        behavior: "smooth",
-      });
+    if (!searchQuery) {
+      return;
     }
+
+    fetchImagesByQuery(searchQuery, page);
   }, [searchQuery, page]);
-
-  //   componentDidUpdate(prevProps, prevState) {
-  //   const { page, searchQuery } = this.state;
-
-  //   if (prevState.searchQuery !== searchQuery) {
-  //     this.setState({ images: [] });
-  //     this.fetchImagesByQuery(searchQuery, page);
-  //     this.setState({ status: Status.PENDING });
-  //   }
-
-  //   if (prevState.page !== page && page !== 1) {
-  //     this.fetchImagesByQuery(searchQuery, page);
-  //   }
-
-  //   if (page > 1) {
-  //     window.scrollTo({
-  //       top: document.documentElement.scrollHeight,
-  //       behavior: "smooth",
-  //     });
-  //   }
-  // };
 
   const fetchImagesByQuery = (searchQuery, page) => {
     fetchImages(searchQuery, page)
@@ -68,6 +40,13 @@ export function App() {
         } else {
           setImages((images) => [...images, ...hits]);
           setStatus(Status.RESOLVED);
+
+          if (page > 1) {
+            window.scrollTo({
+              top: document.documentElement.scrollHeight,
+              behavior: "smooth",
+            });
+          }
         }
       })
       .catch((error) => {
@@ -78,6 +57,7 @@ export function App() {
   const handleFormSubmit = (value) => {
     setSearchQuery(value);
     setPage(1);
+    setImages([]);
   };
 
   const handleButtonClick = () => setPage((page) => page + 1);
@@ -95,7 +75,6 @@ export function App() {
       {status === Status.RESOLVED && (
         <>
           <ImageGallery images={images} onImageClick={handleImageClick} />
-          {}
           <Button onClick={handleButtonClick} />
           {activeImage && (
             <Modal onClose={resetActiveImage}>
